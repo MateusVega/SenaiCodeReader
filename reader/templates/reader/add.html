@@ -1,11 +1,75 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Testing HTML QrCode</title>
+    <link rel="stylesheet" href="{% static 'scan/style.css' %}">
 </head>
 <body>
+    <h1 style="margin: 20px auto;">Adicionar novo codigo</h1>
+    <a href="{% url 'reader:scan' %}">Vendo se tá lido ou não</a>
+    <div style="display: flex; justify-content: center;">
+        <div id="reader" style="width: 500px;">
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <script>
+
+        function domready(fn) {
+            if (document.readyState === "complete" || document.readyState === "interactive") {
+                setTimeout(fn, 1);
+            } else {
+                document.addEventListener("DOMContentLoaded", fn);
+            }
+        }
     
+        domready(function () {
+            var lastresult = 0;
+    
+            function onScanSuccess(decodetext, decodeesult) {
+                if (decodetext !== lastresult) {
+                    lastresult = decodetext;
+
+                    fetch('/save_qr_data/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: `decodetext=${encodeURIComponent(decodetext)}`
+                    })
+                    .then(response => response.json())
+
+                    alert(`${decodetext} salvado com sucesso!!`);
+                    window.location.reload();
+                }
+            }
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+    
+            var htmlscanner = new Html5QrcodeScanner(
+                'reader', { fps: 10, qrbox: 250 }
+            );
+    
+            htmlscanner.render(onScanSuccess);
+        });
+    </script>    
 </body>
 </html>

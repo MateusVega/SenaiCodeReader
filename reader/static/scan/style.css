@@ -1,0 +1,20 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+}
+
+table, th, td {
+    padding: 5px;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.on{
+    background-color: green;
+}
+
+.off{
+    background-color: red;
+}

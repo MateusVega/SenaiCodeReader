@@ -5,7 +5,4 @@ class ferramentas(models.Model):
     status = models.TextField(max_length=255)
 
     def save(self, *args, **kwargs):
-        if ferramentas.objects.filter(nome=self.nome).exists():
-            pass
-        else:
-            super(ferramentas, self).save(*args, **kwargs)
+        super(ferramentas, self).save(*args, **kwargs)
