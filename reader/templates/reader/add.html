@@ -10,66 +10,29 @@
 <body>
     <h1 style="margin: 20px auto;">Adicionar novo codigo</h1>
     <a href="{% url 'reader:scan' %}">Vendo se tá lido ou não</a>
-    <div style="display: flex; justify-content: center;">
-        <div id="reader" style="width: 500px;">
-        </div>
+    <form action="{% url 'reader:save_qr_data' %}" method="post" style="margin-top: 20px;">
+        <input type="text" name="numero" placeholder="numero" id="numero" required><br>
+        <input type="text" name="nome" placeholder="nome" required><br>
+        <input type="text" name="local" placeholder="local" required><br>
+        <input type="text" name="instrutor" placeholder="instrutor" required><br>
+        <input type="submit">
+    </form>
+    <button onclick="generateQrCode()">Create QrCode</button>
+
+    <div id="ImgBox">
+        <img src="" id="qrImage">
     </div>
 
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <script>
+        function generateQrCode(){
+            imgbox = document.getElementById("ImgBox");
+            qrimg = document.getElementById("qrImage")
+            qrtext = document.getElementById("numero")
 
-        function domready(fn) {
-            if (document.readyState === "complete" || document.readyState === "interactive") {
-                setTimeout(fn, 1);
-            } else {
-                document.addEventListener("DOMContentLoaded", fn);
-            }
+            qrimg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrtext.value}`
         }
-    
-        domready(function () {
-            var lastresult = 0;
-    
-            function onScanSuccess(decodetext, decodeesult) {
-                if (decodetext !== lastresult) {
-                    lastresult = decodetext;
-
-                    fetch('/save_qr_data/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRFToken': getCookie('csrftoken')
-                        },
-                        body: `decodetext=${encodeURIComponent(decodetext)}`
-                    })
-                    .then(response => response.json())
-
-                    alert(`${decodetext} salvado com sucesso!!`);
-                    window.location.reload();
-                }
-            }
-
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-    
-            var htmlscanner = new Html5QrcodeScanner(
-                'reader', { fps: 10, qrbox: 250 }
-            );
-    
-            htmlscanner.render(onScanSuccess);
-        });
-    </script>    
+    </script>
 </body>
 </html>

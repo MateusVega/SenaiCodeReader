@@ -17,21 +17,61 @@
     
     <table id="cod" style="margin: 20px auto">
         <tr>
-            <th>Id</th>
-            <th>Codigo</th>
+            <th>Numero</th>
+            <th>Nome</th>
+            <th>Lugar</th>
+            <th>Instrutor</th>
+            <th>Status</th>
+            <th>Deletar</th>
         </tr>
         {% for ferramenta in ferramentas %}
-        <tr>
-            <td {% if ferramenta.status == 'on' %} class="on" {% else %} class="off" {% endif %} >{{ferramenta.id}}</td>
+        <tr data-id="{{ ferramenta.id }}">
+            <td>{{ferramenta.numero}}</td>
             <td>{{ferramenta.nome}}</td>
+            <td>{{ferramenta.local}}</td>
+            <td>{{ferramenta.instrutor}}</td>
+            <td {% if ferramenta.status == 'on' %} class="on" {% else %} class="off" {% endif %} >{{ferramenta.status}}</td>
+            <td><button style="background-color: red; color: white; padding: 5px;" onclick="delete_line({{ ferramenta.id }})">Deletar</button></td>
         </tr>
         {% endfor %}
     </table>
 
+    <a href="{% url 'reader:reset' %}">Resetar tudo</a>
+
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <script>
+        function delete_line(dbline) {
+            fetch('/delete_line/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: `dbline=${encodeURIComponent(dbline)}`
+            })
+            .then(response => response.json())
 
+            document.querySelector(`tr[data-id="${dbline}"]`).remove();
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+    <script>
         function domready(fn) {
             if (document.readyState === "complete" || document.readyState === "interactive") {
                 setTimeout(fn, 1);
