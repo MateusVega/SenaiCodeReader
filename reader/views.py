@@ -2,13 +2,17 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import ferramentas
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='login:login')
 def scan(request):
     return render(request, 'reader/index.html', {'ferramentas': ferramentas.objects.all().values()})
 
+@login_required(login_url='login:login')
 def add(request):
     return render(request, 'reader/add.html', {'ferramentas': ferramentas.objects.all().values()})
 
+@login_required(login_url='login:login')
 @csrf_exempt
 def save_qr_data(request):
     if request.method == "POST":
@@ -22,6 +26,7 @@ def save_qr_data(request):
         ferramenta.save()
         return render(request, 'reader/add.html', {'ferramentas': ferramentas.objects.all().values()})
 
+@login_required(login_url='login:login')
 @csrf_exempt
 def off_to_on(request):
     if request.method == "POST":
@@ -31,10 +36,12 @@ def off_to_on(request):
             ferramenta.status = "on"
             ferramenta.save()
 
+@login_required(login_url='login:login')
 def reset(request):
     ferramentas.objects.filter(status="on").update(status="off")
     return render(request, 'reader/index.html', {'ferramentas': ferramentas.objects.all().values()})
 
+@login_required(login_url='login:login')
 @csrf_exempt
 def delete_line(request):
     if request.method == 'POST':
